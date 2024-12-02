@@ -1,7 +1,6 @@
-class Camera extends Positioned(Oriented) {
+class Camera extends Object3D {
     constructor(position, forward, up, lightPosition, lightDirection) {
-        super(position);
-        Oriented.call(this, forward, up);
+        super(position, forward, up);
         this.lightPosition = lightPosition;
         this.lightDirection = lightDirection;
     }
@@ -25,9 +24,7 @@ class Renderer {
         for (const mesh of meshes) {
             for (const triangle of mesh) {
                 const projectedTriangle = this.projectTriangle(triangle);
-                log("before");
                 if (!projectedTriangle) continue;
-                log("OKAY");
                 const parameterizedTriangle = this.parametrizeTriangle(projectedTriangle);
                 this.draw(data, donutBuffer, parameterizedTriangle);
             }
@@ -47,7 +44,7 @@ class Renderer {
 
         const theta = angle(vector(p1, p2), vector(p2, p3));
 
-        if (isClose(theta, 0) || isClose(theta, PI)) {
+        if (isClose(theta, 0) || isClose(theta, Math.PI)) {
             return null;
         } else {
             return new Triangle3D(p1, p2, p3, triangle);
@@ -93,7 +90,6 @@ class Renderer {
         const character = this.assignCharacter(triangle.original);
 
         for (const [point, distance] of interiorPoints) {
-            log(point);
             if (0 <= point.y && point.y < this.height && 0 <= point.x && point.x < this.width) {
                 const currentDistance = donutBuffer[point.y][point.x];
                 if (distance >= 0 && (currentDistance <= 0 || distance < currentDistance)) {
@@ -146,7 +142,7 @@ class Renderer {
             shift(scale(this.camera.forward, lightDirection.x), scale(this.camera.right, lightDirection.y)),
             scale(this.camera.up, lightDirection.z)
         );
-        const theta = angle(normal(triangle), light) % (PI / 2);
-        return assignCharacter(2 * theta / PI, this.fontData, false);
+        const theta = angle(normal(triangle), light) % (Math.PI / 2);
+        return assignCharacter(2 * theta / Math.PI, this.fontData, false);
     }
 }

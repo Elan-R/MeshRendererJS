@@ -115,9 +115,16 @@ class Rectangle {
     }
 }
 
-class Positioned {
-    constructor(position) {
+class Object3D {
+    constructor(position, forward, up) {
         this._position = position;
+        this._forward = normalize(forward);
+        this._up = normalize(up);
+        if (!isClose(magnitude(this.right), 1)) {
+            throw new Error(
+                `Forward and up vectors must be orthogonal: forward: ${forward}, up: ${up}`
+            );
+        }
     }
 
     get position() {
@@ -134,18 +141,6 @@ class Positioned {
 
     encircle(center, normal, theta) {
         this._position = encircle(this._position, center, normal, theta);
-    }
-}
-
-class Oriented {
-    constructor(forward, up) {
-        this._forward = normalize(forward);
-        this._up = normalize(up);
-        if (!isClose(magnitude(this.right), 1)) {
-            throw new Error(
-                `Forward and up vectors must be orthogonal: forward: ${forward}, up: ${up}`
-            );
-        }
     }
 
     get forward() {

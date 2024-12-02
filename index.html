@@ -7,6 +7,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@100..900&display=swap" rel="stylesheet">
+    <script type="text/javascript" src="stuff/font_data.js"></script>
+    <script type="text/javascript" src="stuff/cube.js"></script>
+    <script type="text/javascript" src="libs/math.js"></script>
+    <script type="text/javascript" src="libs/ascii.js"></script>
+    <script type="text/javascript" src="libs/render.js"></script>
     <style>
         .noto-sans-mono {
             font-family: "Noto Sans Mono", monospace;
@@ -36,9 +41,26 @@
 </div>
 
 <script>
+    function parseMesh(meshData) {
+        let triangles = [];
+
+        for (let i = 0; i < meshData.triangles.length; i++) {
+            let triangle = meshData.triangles[i];
+            let vertices = triangle.vertices;
+
+            triangles.push(new Triangle3D(
+                new Point3D(vertices[0][0], vertices[0][1], vertices[0][2]),
+                new Point3D(vertices[1][0], vertices[1][1], vertices[1][2]),
+                new Point3D(vertices[2][0], vertices[2][1], vertices[2][2])
+            ));
+        }
+
+        return triangles;
+    }
+
     function createCharacterGrid(data) {
         const gridContainer = document.querySelector('.grid');
-        gridContainer.style["grid-template-columns"] = `repeat(${cols}, 2px)`;
+        gridContainer.style["grid-template-columns"] = `repeat(${data[0].length}, 2px)`;
 
         for (const row of data) {
             for (const character of row) {
@@ -50,7 +72,23 @@
         }
     }
 
-    createCharacterGrid();
+    cameraPoint = new Point3D(3, 3, 3);
+    cameraDirection = normalize(new Vector3D(-1.5, -1, -1));
+    cameraUp = cross(cameraDirection, cross(Vector3D.up, new Vector3D(-0.5, 0, -1)));
+
+    camera = new Camera(cameraPoint, cameraDirection, cameraUp, null, new Vector3D(-1, 0, -0.5));
+
+    distanceToScreen = 3;
+    width = 100;
+    height = 100;
+    xStep = 0.02;
+    yStep = 0.02;
+
+    renderer = new Renderer(camera, distanceToScreen, width, height, xStep, yStep, fontData);
+
+    cubeMesh = parseMesh(cube);
+
+    createCharacterGrid(renderer.generateFrame(cubeMesh));
 </script>
 
 </body>
