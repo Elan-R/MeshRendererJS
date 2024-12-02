@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unicode Triangle Mesh Renderer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        .noto-sans-mono {
+            font-family: "Noto Sans Mono", monospace;
+            font-optical-sizing: auto;
+            font-style: normal;
+            font-variation-settings: "wdth" 100;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(5, 2px);
+            grid-gap: 2px;
+        }
+        .grid-item {
+            width: 2px;
+            height: 2px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.3rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="grid noto-sans-mono">
+    <!-- JavaScript will populate this grid -->
+</div>
+
+<script>
+    function createCharacterGrid(data) {
+        const gridContainer = document.querySelector('.grid');
+        gridContainer.style["grid-template-columns"] = `repeat(${cols}, 2px)`;
+
+        for (const row of data) {
+            for (const character of row) {
+                const gridItem = document.createElement("div");
+                gridItem.classList.add("grid-item");
+                gridItem.textContent = character;
+                gridContainer.appendChild(gridItem);
+            }
+        }
+    }
+
+    createCharacterGrid();
+</script>
+
+</body>
+</html>
