@@ -58,38 +58,97 @@
         return new Mesh(position, forward, up, triangles);
     }
 
-    function objToMesh(position, forward, up, objString) {
+    function objToMesh(position, forward, up, objString, scale) {
         vertices = [];
         triangles = [];
 
         for (const line of objString.split("\n")) {
-            parts = line.split(" ");
+            parts = line.split(" ").filter(part => part != "");
 
             switch (parts[0]) {
                 case "#":
                     break;
                 case "v":
                     vertices.push(new Point3D(
-                        parseFloat(parts[1]),
-                        parseFloat(parts[2]),
-                        parseFloat(parts[3])
+                        parseFloat(parts[1]) * scale,
+                        parseFloat(parts[2]) * scale,
+                        parseFloat(parts[3]) * scale
                     ));
                     break;
                 case "f":
                     for (let i = 2; i < parts.length - 1; i++) {
                         triangles.push(new Triangle3D(
-                            vertices[parseInt(parts[1]) - 1],
-                            vertices[parseInt(parts[i]) - 1],
-                            vertices[parseInt(parts[i + 1]) - 1]
+                            vertices[parseInt(parts[1].split("//")[0]) - 1],
+                            vertices[parseInt(parts[i].split("//")[0]) - 1],
+                            vertices[parseInt(parts[i + 1].split("//")[0]) - 1]
                         ));
                     }
                     break;
                 default:
-                    throw new Error(`Only supports #, v, f: ${parts[0]}`);
+                    break;
             }
         }
 
         return new Mesh(position, forward, up, triangles);
+    }
+
+    function centerMesh(mesh) {
+        meanX = 0;
+        meanY = 0;
+        meanZ = 0;
+        count = 0;
+
+        for (const triangle of mesh.triangles) {
+            count += 1;
+            meanX = meanX + (triangle.p1.x - meanX) / count;
+            meanY = meanY + (triangle.p1.y - meanY) / count;
+            meanZ = meanZ + (triangle.p1.z - meanZ) / count;
+            count += 1;
+            meanX = meanX + (triangle.p2.x - meanX) / count;
+            meanY = meanY + (triangle.p2.y - meanY) / count;
+            meanZ = meanZ + (triangle.p2.z - meanZ) / count;
+            count += 1;
+            meanX = meanX + (triangle.p3.x - meanX) / count;
+            meanY = meanY + (triangle.p3.y - meanY) / count;
+            meanZ = meanZ + (triangle.p3.z - meanZ) / count;
+        }
+
+        toOrigin = negate(new Vector3D(meanX, meanY, meanZ));
+        triangles = [];
+
+        for (const triangle of mesh.triangles) {
+            triangles.push(new Triangle3D(
+                shift(triangle.p1, toOrigin),
+                shift(triangle.p2, toOrigin),
+                shift(triangle.p3, toOrigin)
+            ));
+        }
+
+        mesh.triangles = triangles;
+    }
+
+    function normalizeMesh(mesh) {
+        radius = 0;
+
+        for (const triangle of mesh.triangles) {
+            let mag = 0;
+            if (mag = magnitude(triangle.p1) > radius) radius = mag;
+            if (mag = magnitude(triangle.p2) > radius) radius = mag;
+            if (mag = magnitude(triangle.p2) > radius) radius = mag;
+        }
+
+        factor = 1/radius;
+        triangles = [];
+
+        for (const triangle of mesh.triangles) {
+            triangles.push(new Triangle3D(
+                scale(triangle.p1, factor),
+                scale(triangle.p2, factor),
+                scale(triangle.p3, factor)
+            ));
+        }
+
+        mesh.triangles = triangles;
     }
 
     function createCharacterGrid(data) {
@@ -123,16 +182,18 @@
 
     cubeMesh = parseMesh(Point3D.origin, Vector3D.forward, Vector3D.up, cube);
 
-    fetch("icosahedron.obj")
+    fetch("pumpkin.obj")
         .then((res) => res.text())
         .then((text) => {
-            icosahedronMesh = objToMesh(Point3D.origin, Vector3D.forward, Vector3D.up, text);
+            icosahedronMesh = objToMesh(Point3D.origin, Vector3D.forward, Vector3D.up, text, 1/20);
+            centerMesh(icosahedronMesh);
+            normalizeMesh(icosahedronMesh);
             setInterval(() => {
                 icosahedronMesh.yaw(0.1);
                 icosahedronMesh.roll(0.02);
                 icosahedronMesh.pitch(0.08);
-                createCharacterGrid(renderer.generateFrame(icosahedronMesh));
-            }, 1000);
+                createCharacterGrid(renderer.generateFrame(icosahedronMesh, cubeMesh));
+            }, 100);
         })
         .catch((e) => console.error(e));
 </script>
