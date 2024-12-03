@@ -114,6 +114,7 @@ class Renderer {
             if (0 <= gridPoint.y && gridPoint.y < this.height && 0 <= gridPoint.x && gridPoint.x < this.width) {
                 const currentDistance = donutBuffer[gridPoint.y][gridPoint.x];
                 if (distance >= 0 && (currentDistance <= 0 || distance < currentDistance)) {
+                    donutBuffer[gridPoint.y][gridPoint.x] = distance;
                     data[gridPoint.y][gridPoint.x] = character;
                 }
             }

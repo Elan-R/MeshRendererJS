@@ -91,7 +91,8 @@
 
     setInterval(() => {
         cubeMesh.yaw(0.1);
-        //cubeMesh.roll(0.02);
+        cubeMesh.roll(0.02);
+        cubeMesh.pitch(0.08);
         createCharacterGrid(renderer.generateFrame(cubeMesh));
     }, 100);
 </script>
