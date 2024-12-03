@@ -135,7 +135,7 @@ class Renderer {
     }
 
     calcTriangleInteriorTolerance(triangle) {
-        return 0.000261855 / (triangleArea(triangle) + 0.000475758) + 0.00807226;
+        return 0.00026 / (triangleArea(triangle) + 0.00047) + 0.0085;
     }
 
     getDonutValue(point, triangle) {
