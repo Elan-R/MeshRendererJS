@@ -20,7 +20,7 @@ class Renderer {
     generateFrame(...meshes) {
         const data = Array.from({length: this.height}, () => Array.from({length: this.width}, () => ' '));
         const donutBuffer = Array.from({length: this.height}, () => Array.from({length: this.width}, () => -1));
-        
+
         for (const mesh of meshes) {
             for (const triangle of mesh) {
                 const projectedTriangle = this.projectTriangle(triangle);
@@ -90,10 +90,11 @@ class Renderer {
         const character = this.assignCharacter(triangle.original);
 
         for (const [point, distance] of interiorPoints) {
-            if (0 <= point.y && point.y < this.height && 0 <= point.x && point.x < this.width) {
-                const currentDistance = donutBuffer[point.y][point.x];
+            const gridPoint = this.toGridPoint(point);
+            if (0 <= gridPoint.y && gridPoint.y < this.height && 0 <= gridPoint.x && gridPoint.x < this.width) {
+                const currentDistance = donutBuffer[gridPoint.y][gridPoint.x];
                 if (distance >= 0 && (currentDistance <= 0 || distance < currentDistance)) {
-                    data[point.y][point.x] = character;
+                    data[gridPoint.y][gridPoint.x] = character;
                 }
             }
         }
@@ -106,15 +107,8 @@ class Renderer {
         for (let x = box.bottomLeft.x; x <= box.topRight.x; x += this.xStep) {
             for (let y = box.bottomLeft.y; y <= box.topRight.y; y += this.yStep) {
                 const point = new Point2D(x, y);
-
-                if (triangleInterior(point, triangle)) {
-                    const screenX = Math.round(x * 1 / this.xStep + this.width / 2);
-                    const screenY = this.height - Math.round(y * 1 / this.yStep + this.height / 2) - 1;
-                    result.push([
-                        new Point2D(screenX, screenY),
-                        this.getDonutValue(point, triangle.original)
-                    ]);
-                }
+                if (!triangleInterior(point, triangle)) continue;
+                result.push([point, this.getDonutValue(point, triangle.original)]);
             }
         }
 
@@ -132,8 +126,7 @@ class Renderer {
             scale(this.camera.up, point.y)
         );
         const n = normal(triangle);
-        return dot(vector(this.camera.position, triangle.p1), n) /
-            dot(normalize(vector(this.camera.position, pointOnPlane)), n);
+        return dot(vector(this.camera.position, triangle.p1), n) / dot(normalize(vector(this.camera.position, pointOnPlane)), n);
     }
 
     assignCharacter(triangle) {
@@ -142,7 +135,15 @@ class Renderer {
             shift(scale(this.camera.forward, lightDirection.x), scale(this.camera.right, lightDirection.y)),
             scale(this.camera.up, lightDirection.z)
         );
-        const theta = angle(normal(triangle), light) % (Math.PI / 2);
+        let theta = angle(normal(triangle), light);
+        if (theta > Math.PI / 2) theta = Math.PI - theta;
         return assignCharacter(2 * theta / Math.PI, this.fontData, false);
+    }
+
+    toGridPoint(point) {
+        return new Point2D(
+            Math.round(point.x / this.xStep + this.width / 2),
+            this.height - Math.round(point.y / this.yStep + this.height / 2) - 1
+        );
     }
 }
