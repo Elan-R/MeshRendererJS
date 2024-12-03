@@ -135,8 +135,7 @@ class Renderer {
     }
 
     calcTriangleInteriorTolerance(triangle) {
-        const magicNumber = 0.0002;
-        return magicNumber / triangleArea(triangle);
+        return 0.000261855 / (triangleArea(triangle) + 0.000475758) + 0.00807226;
     }
 
     getDonutValue(point, triangle) {
