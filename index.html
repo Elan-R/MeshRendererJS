@@ -7,8 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@100..900&display=swap" rel="stylesheet">
-    <script type="text/javascript" src="stuff/font_data.js"></script>
-    <script type="text/javascript" src="stuff/cube.js"></script>
+    <script type="text/javascript" src="libs/font_data.js"></script>
     <script type="text/javascript" src="libs/math.js"></script>
     <script type="text/javascript" src="libs/ascii.js"></script>
     <script type="text/javascript" src="libs/render.js"></script>
@@ -194,8 +193,6 @@
 
     renderer = new Renderer(camera, distanceToScreen, width, height, xStep, yStep, fontData);
 
-    cubeMesh = parseMesh(Point3D.origin, Vector3D.forward, Vector3D.up, cube);
-
     window.addEventListener("keydown", e => {
         switch (e.key) {
             case "w":
@@ -226,8 +223,8 @@
         }
     });
 
-    readMesh("pumpkin.obj", new Point3D(0, 0, 0), Vector3D.forward, Vector3D.up, pumpkin => {
-        readMesh("icosahedron.obj", new Point3D(-6, -4, 2), Vector3D.back, Vector3D.up, icosahedron => {
+    readMesh("objs/pumpkin.obj", new Point3D(0, 0, 0), Vector3D.forward, Vector3D.up, pumpkin => {
+        readMesh("objs/icosahedron.obj", new Point3D(-6, -4, 2), Vector3D.back, Vector3D.up, icosahedron => {
             setInterval(() => {
                 pumpkin.yaw(0.1);
                 icosahedron.roll(0.1);
