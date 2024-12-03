@@ -58,6 +58,40 @@
         return new Mesh(position, forward, up, triangles);
     }
 
+    function objToMesh(position, forward, up, objString) {
+        vertices = [];
+        triangles = [];
+
+        for (const line of objString.split("\n")) {
+            parts = line.split(" ");
+
+            switch (parts[0]) {
+                case "#":
+                    break;
+                case "v":
+                    vertices.push(new Point3D(
+                        parseFloat(parts[1]),
+                        parseFloat(parts[2]),
+                        parseFloat(parts[3])
+                    ));
+                    break;
+                case "f":
+                    for (let i = 2; i < parts.length - 1; i++) {
+                        triangles.push(new Triangle3D(
+                            vertices[parseInt(parts[1]) - 1],
+                            vertices[parseInt(parts[i]) - 1],
+                            vertices[parseInt(parts[i + 1]) - 1]
+                        ));
+                    }
+                    break;
+                default:
+                    throw new Error(`Only supports #, v, f: ${parts[0]}`);
+            }
+        }
+
+        return new Mesh(position, forward, up, triangles);
+    }
+
     function createCharacterGrid(data) {
         const gridContainer = document.querySelector('.grid');
         gridContainer.replaceChildren();
@@ -89,12 +123,18 @@
 
     cubeMesh = parseMesh(Point3D.origin, Vector3D.forward, Vector3D.up, cube);
 
-    setInterval(() => {
-        cubeMesh.yaw(0.1);
-        cubeMesh.roll(0.02);
-        cubeMesh.pitch(0.08);
-        createCharacterGrid(renderer.generateFrame(cubeMesh));
-    }, 100);
+    fetch("icosahedron.obj")
+        .then((res) => res.text())
+        .then((text) => {
+            icosahedronMesh = objToMesh(Point3D.origin, Vector3D.forward, Vector3D.up, text);
+            setInterval(() => {
+                icosahedronMesh.yaw(0.1);
+                icosahedronMesh.roll(0.02);
+                icosahedronMesh.pitch(0.08);
+                createCharacterGrid(renderer.generateFrame(icosahedronMesh));
+            }, 1000);
+        })
+        .catch((e) => console.error(e));
 </script>
 
 </body>
