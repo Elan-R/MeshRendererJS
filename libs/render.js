@@ -27,7 +27,7 @@ class Renderer {
     }
 
     generateFrame(...meshes) {
-        const data = Array.from({length: this.height}, () => Array.from({length: this.width}, () => ' '));
+        const data = Array.from({length: this.height}, () => Array.from({length: this.width}, () => " "));
         const donutBuffer = Array.from({length: this.height}, () => Array.from({length: this.width}, () => -1));
 
         for (const mesh of meshes) {
@@ -126,7 +126,7 @@ class Renderer {
         for (let x = box.bottomLeft.x; x <= box.topRight.x; x += this.xStep) {
             for (let y = box.bottomLeft.y; y <= box.topRight.y; y += this.yStep) {
                 const point = new Point2D(x, y);
-                if (!triangleInterior(point, triangle)) continue;
+                if (!triangleInterior(point, triangle, 0)) continue;
                 result.push([point, this.getDonutValue(point, triangle.original)]);
             }
         }

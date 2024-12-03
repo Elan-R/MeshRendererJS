@@ -263,7 +263,7 @@ function det(a, b) {
     return a.x * b.y - a.y * b.x;
 }
 
-function triangleInterior(p, t) {
+function triangleInterior(p, t, interiorTolerance) {
     const v1 = vector2D(t.p1, t.p2);
     const v2 = vector2D(t.p1, t.p3);
 
@@ -278,5 +278,5 @@ function triangleInterior(p, t) {
     const a = det(vp, v2) / denominator;
     const b = -det(vp, v1) / denominator;
 
-    return a >= 0 && b >= 0 && a + b <= 1;
+    return a >= -interiorTolerance && b >= -interiorTolerance && a + b <= 1 + interiorTolerance;
 }
