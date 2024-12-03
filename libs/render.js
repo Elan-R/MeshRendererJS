@@ -158,7 +158,7 @@ class Renderer {
         );
         let theta = angle(normal(triangle), light);
         if (theta > Math.PI / 2) theta = Math.PI - theta;
-        return assignCharacter(2 * theta / Math.PI, this.fontData, false);
+        return assignCharacter(2 * theta / Math.PI, this.fontData, true);
     }
 
     toGridPoint(point) {
