@@ -167,16 +167,24 @@
         }
     }
 
-    function readMesh(path, position, forward, up, callback) {
-        fetch(path)
-            .then((res) => res.text())
-            .then((text) => {
-                mesh = objToMesh(position, forward, up, text, 1);
-                centerMesh(mesh);
-                normalizeMesh(mesh);
-                callback(mesh);
-            })
-            .catch((e) => console.error(e));
+    function readMeshes(infos, callback) {
+        const meshes = Array(infos.length);
+        let i = 0;
+
+        for (const [path, position, forward, up] of infos) {
+            fetch(path)
+                .then((res) => res.text())
+                .then(((index, text) => {
+                    console.log(index);
+                    mesh = objToMesh(position, forward, up, text, 1);
+                    centerMesh(mesh);
+                    normalizeMesh(mesh);
+                    meshes[index] = mesh;
+                    if (!meshes.includes(undefined)) callback(...meshes);
+                }).bind(undefined, i))
+                .catch((e) => console.error(e));
+            i++;
+        }
     }
 
     cameraPoint = new Point3D(3, 3, 3);
@@ -223,15 +231,22 @@
         }
     });
 
-    readMesh("objs/pumpkin.obj", new Point3D(0, 0, 0), Vector3D.forward, Vector3D.up, pumpkin => {
-        readMesh("objs/icosahedron.obj", new Point3D(-6, -4, 2), Vector3D.back, Vector3D.up, icosahedron => {
-            setInterval(() => {
-                pumpkin.yaw(0.1);
-                icosahedron.roll(0.1);
-                createCharacterGrid(renderer.generateFrame(pumpkin, icosahedron));
-            }, 100);
-        })
-    })
+    readMeshes([
+        ["objs/icosahedron.obj", new Point3D(-6, -4, 2), Vector3D.back, Vector3D.up],
+        ["objs/pumpkin.obj", new Point3D(0, 0, 0), Vector3D.forward, Vector3D.up],
+        ["objs/shuttle.obj", new Point3D(0, 0, 0), Vector3D.back, Vector3D.up]
+    ], (icosahedron, pumpkin, shuttle) => {
+        shuttle.shiftBy(negate(shuttle.forward), 1.1)
+        const pumputtle = combineMeshes(pumpkin, shuttle);
+        pumpkin.shift(new Vector3D(-4, 2, -1));
+
+        setInterval(() => {
+            pumputtle.yaw(0.1);
+            createCharacterGrid(renderer.generateFrame(icosahedron, pumputtle, pumpkin));
+        }, 100);
+    });
+
+    // TODO: mess more with triangle interior threshhold function
 
     // https://people.sc.fsu.edu/~jburkardt/data/obj/obj.html
 </script>

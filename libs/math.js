@@ -284,3 +284,35 @@ function triangleInterior(p, t, interiorTolerance) {
 
     return a >= -interiorTolerance && b >= -interiorTolerance && a + b <= 1 + interiorTolerance;
 }
+
+function shiftTriangle(t, v) {
+    return new Triangle3D(shift(t.p1, v), shift(t.p2, v), shift(t.p3, v));
+}
+
+//DELTE????
+function encircleTriangle(t, c, n, theta) {
+    return new Triangle3D(
+        encircle(t.p1, c, n, theta),
+        encircle(t.p2, c, n, theta),
+        encircle(t.p3, c, n, theta)
+    );
+}
+
+function combineTwoMeshes(a, b) {
+    const shiftVector = vector(b.position, a.position);
+    const newTriangles = [];
+
+    for (const triangle of b.triangles) {
+        newTriangles.push(shiftTriangle(triangle, shiftVector));
+    }
+
+    return new Mesh(a.position, a.forward, a.up, newTriangles.concat(a.triangles));
+}
+
+function combineMeshes(baseMesh, ...meshes) {
+    let newMesh = baseMesh;
+    for (const mesh of meshes) {
+        newMesh = combineTwoMeshes(newMesh, mesh)
+    }
+    return newMesh;
+}
