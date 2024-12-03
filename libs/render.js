@@ -6,6 +6,13 @@ class Camera extends Object3D {
     }
 }
 
+class Mesh extends Object3D {
+    constructor(position, forward, up, triangles) {
+        super(position, forward, up);
+        this.triangles = triangles;
+    }
+}
+
 class Renderer {
     constructor(camera, distanceToScreen, width, height, xStep, yStep, fontData) {
         this.camera = camera;
@@ -22,8 +29,9 @@ class Renderer {
         const donutBuffer = Array.from({length: this.height}, () => Array.from({length: this.width}, () => -1));
 
         for (const mesh of meshes) {
-            for (const triangle of mesh) {
-                const projectedTriangle = this.projectTriangle(triangle);
+            for (const triangle of mesh.triangles) {
+                const placedTriangle = this.placeTriangle(triangle, mesh);
+                const projectedTriangle = this.projectTriangle(placedTriangle);
                 if (!projectedTriangle) continue;
                 const parameterizedTriangle = this.parametrizeTriangle(projectedTriangle);
                 this.draw(data, donutBuffer, parameterizedTriangle);
@@ -31,6 +39,18 @@ class Renderer {
         }
 
         return data;
+    }
+
+    placeTriangle(triangle, mesh) {
+        return new Triangle3D(
+            this.placePoint(triangle.p1, mesh),
+            this.placePoint(triangle.p2, mesh),
+            this.placePoint(triangle.p3, mesh)
+        );
+    }
+
+    placePoint(point, mesh) {
+        return shift(shift(shift(mesh.position, scale(mesh.forward, point.x)), scale(mesh.right, point.y)), scale(mesh.up, point.z));
     }
 
     projectTriangle(triangle) {

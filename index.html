@@ -41,11 +41,11 @@
 </div>
 
 <script>
-    function parseMesh(meshData) {
+    function parseMesh(position, forward, up, triangleData) {
         let triangles = [];
 
-        for (let i = 0; i < meshData.triangles.length; i++) {
-            let triangle = meshData.triangles[i];
+        for (let i = 0; i < triangleData.triangles.length; i++) {
+            let triangle = triangleData.triangles[i];
             let vertices = triangle.vertices;
 
             triangles.push(new Triangle3D(
@@ -55,11 +55,12 @@
             ));
         }
 
-        return triangles;
+        return new Mesh(position, forward, up, triangles);
     }
 
     function createCharacterGrid(data) {
         const gridContainer = document.querySelector('.grid');
+        gridContainer.replaceChildren();
         gridContainer.style["grid-template-columns"] = `repeat(${data[0].length}, 2px)`;
 
         for (const row of data) {
@@ -79,16 +80,20 @@
     camera = new Camera(cameraPoint, cameraDirection, cameraUp, null, new Vector3D(-1, 0, -0.5));
 
     distanceToScreen = 3;
-    width = 100;
-    height = 100;
+    width = 200;
+    height = 150;
     xStep = 0.02;
     yStep = 0.02;
 
     renderer = new Renderer(camera, distanceToScreen, width, height, xStep, yStep, fontData);
 
-    cubeMesh = parseMesh(cube);
+    cubeMesh = parseMesh(Point3D.origin, Vector3D.forward, Vector3D.up, cube);
 
-    createCharacterGrid(renderer.generateFrame(cubeMesh));
+    setInterval(() => {
+        cubeMesh.yaw(0.1);
+        //cubeMesh.roll(0.02);
+        createCharacterGrid(renderer.generateFrame(cubeMesh));
+    }, 100);
 </script>
 
 </body>
