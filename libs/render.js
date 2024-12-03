@@ -126,12 +126,17 @@ class Renderer {
         for (let x = box.bottomLeft.x; x <= box.topRight.x; x += this.xStep) {
             for (let y = box.bottomLeft.y; y <= box.topRight.y; y += this.yStep) {
                 const point = new Point2D(x, y);
-                if (!triangleInterior(point, triangle, 0)) continue;
+                if (!triangleInterior(point, triangle, this.calcTriangleInteriorTolerance(triangle))) continue;
                 result.push([point, this.getDonutValue(point, triangle.original)]);
             }
         }
 
         return result;
+    }
+
+    calcTriangleInteriorTolerance(triangle) {
+        const magicNumber = 0.0002;
+        return magicNumber / triangleArea(triangle);
     }
 
     getDonutValue(point, triangle) {

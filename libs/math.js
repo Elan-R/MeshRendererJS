@@ -263,6 +263,10 @@ function det(a, b) {
     return a.x * b.y - a.y * b.x;
 }
 
+function triangleArea(t) {
+    return Math.abs((t.p1.x - t.p3.x) * (t.p2.y - t.p1.y) - (t.p1.x - t.p2.x) * (t.p3.y - t.p1.y)) / 2
+}
+
 function triangleInterior(p, t, interiorTolerance) {
     const v1 = vector2D(t.p1, t.p2);
     const v2 = vector2D(t.p1, t.p3);
