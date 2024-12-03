@@ -13,6 +13,8 @@ class Mesh extends Object3D {
     }
 }
 
+FOV = Math.PI / 4;
+
 class Renderer {
     constructor(camera, distanceToScreen, width, height, xStep, yStep, fontData) {
         this.camera = camera;
@@ -74,15 +76,11 @@ class Renderer {
     projectPoint(point) {
         const cameraToScreen = scale(this.camera.forward, this.distanceToScreen);
         const cameraToPoint = vector(this.camera.position, point);
-        const denominator = dot(cameraToScreen, cameraToPoint);
-
-        if (denominator <= 0) {
-            return null;
-        }
+        if (angle(cameraToScreen, cameraToPoint) > FOV) return null;
 
         const cameraToProjectedPoint = scale(
             cameraToPoint,
-            dot(cameraToScreen, cameraToScreen) / denominator
+            dot(cameraToScreen, cameraToScreen) / dot(cameraToScreen, cameraToPoint)
         );
         return shift(this.camera.position, cameraToProjectedPoint);
     }

@@ -32,13 +32,15 @@
             align-items: center;
             font-size: 0.3rem;
         }
+        .center {
+            margin: 0 auto;
+            width: 50%;
+        }
     </style>
 </head>
 <body>
 
-<div class="grid noto-sans-mono">
-    <!-- JavaScript will populate this grid -->
-</div>
+<div class="grid noto-sans-mono center"></div>
 
 <script>
     function parseMesh(position, forward, up, triangleData) {
@@ -93,10 +95,10 @@
     }
 
     function centerMesh(mesh) {
-        meanX = 0;
-        meanY = 0;
-        meanZ = 0;
-        count = 0;
+        let meanX = 0;
+        let meanY = 0;
+        let meanZ = 0;
+        let count = 0;
 
         for (const triangle of mesh.triangles) {
             count += 1;
@@ -132,9 +134,9 @@
 
         for (const triangle of mesh.triangles) {
             let mag = 0;
-            if (mag = magnitude(triangle.p1) > radius) radius = mag;
-            if (mag = magnitude(triangle.p2) > radius) radius = mag;
-            if (mag = magnitude(triangle.p2) > radius) radius = mag;
+            if ((mag = magnitude(triangle.p1)) > radius) radius = mag;
+            if ((mag = magnitude(triangle.p2)) > radius) radius = mag;
+            if ((mag = magnitude(triangle.p3)) > radius) radius = mag;
         }
 
         factor = 1/radius;
@@ -164,6 +166,18 @@
                 gridContainer.appendChild(gridItem);
             }
         }
+    }
+
+    function readMesh(path, position, forward, up, callback) {
+        fetch(path)
+            .then((res) => res.text())
+            .then((text) => {
+                mesh = objToMesh(position, forward, up, text, 1);
+                centerMesh(mesh);
+                normalizeMesh(mesh);
+                callback(mesh);
+            })
+            .catch((e) => console.error(e));
     }
 
     cameraPoint = new Point3D(3, 3, 3);
@@ -197,10 +211,10 @@
                 camera.yaw(-0.1);
                 break;
             case "i":
-                camera.shiftBy(camera.forward, 0.1);
+                camera.shiftBy(camera.forward, 0.2);
                 break;
             case "k":
-                camera.shiftBy(camera.forward, -0.1);
+                camera.shiftBy(camera.forward, -0.2);
                 break;
             case "l":
                 camera.roll(0.1);
@@ -212,21 +226,14 @@
         }
     });
 
-    fetch("pumpkin.obj")
-        .then((res) => res.text())
-        .then((text) => {
-            icosahedronMesh = objToMesh(Point3D.origin, Vector3D.forward, Vector3D.up, text, 1/20);
-            centerMesh(icosahedronMesh);
-            normalizeMesh(icosahedronMesh);
-            setInterval(() => {
-                icosahedronMesh.yaw(0.1);
-                icosahedronMesh.roll(0.02);
-                icosahedronMesh.pitch(0.08);
-                createCharacterGrid(renderer.generateFrame(icosahedronMesh, cubeMesh));
-            }, 100);
-        })
-        .catch((e) => console.error(e));
-        // https://people.sc.fsu.edu/~jburkardt/data/obj/obj.html
+    readMesh("pumpkin.obj", new Point3D(-1, -1, 0), Vector3D.forward, Vector3D.up, pumpkin => {
+        setInterval(() => {
+            pumpkin.yaw(0.1);
+            createCharacterGrid(renderer.generateFrame(pumpkin));
+        }, 100);
+    })
+
+    // https://people.sc.fsu.edu/~jburkardt/data/obj/obj.html
 </script>
 
 </body>
