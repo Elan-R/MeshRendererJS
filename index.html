@@ -226,11 +226,14 @@
         }
     });
 
-    readMesh("pumpkin.obj", new Point3D(-1, -1, 0), Vector3D.forward, Vector3D.up, pumpkin => {
-        setInterval(() => {
-            pumpkin.yaw(0.1);
-            createCharacterGrid(renderer.generateFrame(pumpkin));
-        }, 100);
+    readMesh("pumpkin.obj", new Point3D(0, 0, 0), Vector3D.forward, Vector3D.up, pumpkin => {
+        readMesh("icosahedron.obj", new Point3D(-6, -4, 2), Vector3D.back, Vector3D.up, icosahedron => {
+            setInterval(() => {
+                pumpkin.yaw(0.1);
+                icosahedron.roll(0.1);
+                createCharacterGrid(renderer.generateFrame(pumpkin, icosahedron));
+            }, 100);
+        })
     })
 
     // https://people.sc.fsu.edu/~jburkardt/data/obj/obj.html
